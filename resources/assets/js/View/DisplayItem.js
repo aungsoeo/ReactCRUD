@@ -3,11 +3,18 @@ import {browserHistory} from 'react-router';
 import ItemViewModel from '../ViewModel/ItemViewModel';
 import { Link } from 'react-router';
 
+
 var $this;
 class DisplayItem extends ItemViewModel {
     constructor(props) {
         super(props);
         this.getData();
+        this.state = {
+            items:'',
+            currentPage: 1,
+            PerPage: 5
+        };
+        this.handleClick = this.handleClick.bind(this);
     }
     componentDidMount(){
         $this = this;
@@ -24,7 +31,39 @@ class DisplayItem extends ItemViewModel {
             })
         }
     }
+  
+    handleClick(event) {
+        this.setState({
+          currentPage: Number(event.target.id)
+        });
+      }
+
     render(){
+        const { items, currentPage, PerPage } = this.state;
+
+        // Logic for displaying todos
+        const indexOfLastItem = currentPage * PerPage;
+        const indexOfFirstItem = indexOfLastItem - PerPage;
+        const currentItem = items.slice(indexOfFirstItem, indexOfLastItem);
+
+        // Logic for displaying page numbers
+        const pageNumbers = [];
+        for (let i = 1; i <= Math.ceil(items.length / PerPage); i++) {
+            pageNumbers.push(i);
+        }
+
+        const renderPageNumbers = pageNumbers.map(number => {
+        return (
+            <li
+            key={number}
+            id={number}
+            onClick={this.handleClick}
+            >
+            {number}
+            </li>
+        );
+        });
+
         return (
             <div>
                 <h1>Items</h1>
@@ -49,6 +88,11 @@ class DisplayItem extends ItemViewModel {
                       {this.tabRow()}
                     </tbody>
                 </table>
+                <div>
+                <ul id="page-numbers">
+                    {renderPageNumbers}
+                </ul>
+                </div>
             </div>
         )
     }
